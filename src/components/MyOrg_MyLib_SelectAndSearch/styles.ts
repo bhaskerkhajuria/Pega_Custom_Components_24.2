@@ -1,5 +1,5 @@
-import styled, { css } from 'styled-components';
-import { Button } from '@pega/cosmos-react-core';
+import styled, { css } from "styled-components";
+import { Button } from "@pega/cosmos-react-core";
 
 // ─── Wrapper ──────────────────────────────────────────────────────────────────
 
@@ -14,14 +14,14 @@ export default StyledSearchLayoutWrapper;
 // ─── Layout container ─────────────────────────────────────────────────────────
 
 export const StyledLayoutContainer = styled.div<{
-  $direction: 'vertical' | 'horizontal';
+  $direction: "vertical" | "horizontal";
 }>`
   display: flex;
   width: 100%;
   box-sizing: border-box;
 
   ${({ $direction }) =>
-    $direction === 'vertical'
+    $direction === "vertical"
       ? css`
           flex-direction: row;
           align-items: stretch;
@@ -43,7 +43,7 @@ export const StyledLayoutContainer = styled.div<{
 // ─── Resize handle (vertical mode only) ──────────────────────────────────────
 
 export const StyledResizeHandle = styled.div`
-  width: 20px;
+  width: 7px;
   flex-shrink: 0;
   cursor: col-resize;
   position: relative;
@@ -56,18 +56,20 @@ export const StyledResizeHandle = styled.div`
 
   /* Visible grip pill */
   &::before {
-    content: '';
+    content: "";
     display: block;
     width: 4px;
     height: 48px;
     border-radius: 4px;
     background: var(--app-border-color, #d0d0d0);
-    transition: background 0.15s, height 0.15s;
+    transition:
+      background 0.15s,
+      height 0.15s;
   }
 
   /* Dots on the grip */
   &::after {
-    content: '⋮';
+    content: "⋮";
     position: absolute;
     font-size: 1rem;
     line-height: 1;
