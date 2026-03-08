@@ -3,7 +3,7 @@
   "label": "Select And Search",
   "description": "Two-pane search layout with configurable search criteria pane and results pane. Supports resizable vertical split and collapsible horizontal stacking.",
   "organization": "MyOrg",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "library": "MyLib",
   "allowedApplications": [],
   "componentKey": "MyOrg_MyLib_SelectAndSearch",
@@ -56,6 +56,27 @@
       ]
     },
     {
+      "name": "searchColumns",
+      "label": "Search Pane Columns",
+      "description": "Number of columns for the search criteria fields.",
+      "format": "SELECT",
+      "defaultValue": "3",
+      "source": [
+        {
+          "key": "1",
+          "value": "1 Column"
+        },
+        {
+          "key": "2",
+          "value": "2 Columns"
+        },
+        {
+          "key": "3",
+          "value": "3 Columns"
+        }
+      ]
+    },
+    {
       "name": "resultsPlaceholder",
       "label": "Results Placeholder Text",
       "description": "Text shown in the results pane before the user clicks Search.",
@@ -68,9 +89,7 @@
       "description": "Drop fields, views, and widgets that make up the search criteria form.",
       "format": "CONTENTPICKER",
       "addTypeList": [
-        "Fields",
-        "Views",
-        "UIComponents"
+        "Fields"
       ]
     },
     {

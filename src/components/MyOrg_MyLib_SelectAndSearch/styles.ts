@@ -43,7 +43,7 @@ export const StyledLayoutContainer = styled.div<{
 // ─── Resize handle (vertical mode only) ──────────────────────────────────────
 
 export const StyledResizeHandle = styled.div`
-  width: 7px;
+  width: 20px;
   flex-shrink: 0;
   cursor: col-resize;
   position: relative;
@@ -102,15 +102,18 @@ export const StyledResizeHandle = styled.div`
 
 // ─── Search fields grid ───────────────────────────────────────────────────────
 
-export const StyledSearchFieldsGrid = styled.div`
+export const StyledSearchFieldsGrid = styled.div<{ $columns: number }>`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(${({ $columns }) => $columns}, 1fr);
   gap: 0.75rem;
   align-items: start;
   width: 100%;
 
   @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(
+      ${({ $columns }) => Math.min($columns, 2)},
+      1fr
+    );
   }
 
   @media (max-width: 480px) {

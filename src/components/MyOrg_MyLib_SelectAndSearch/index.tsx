@@ -4,26 +4,26 @@ import {
   useCallback,
   useEffect,
   type PropsWithChildren,
-  type ReactElement
-} from 'react';
-import type { KeyboardEvent } from 'react';
+  type ReactElement,
+} from "react";
+import type { KeyboardEvent } from "react";
 
-import type { PConnProps } from './PConnProps';
+import type { PConnProps } from "./PConnProps";
 
 import {
   Button,
   Card,
   CardHeader,
   CardContent,
-  CardFooter
-} from '@pega/cosmos-react-core';
+  CardFooter,
+} from "@pega/cosmos-react-core";
 
 import StyledSearchLayoutWrapper, {
   StyledLayoutContainer,
   StyledResizeHandle,
   StyledCaretButton,
-  StyledSearchFieldsGrid
-} from './styles';
+  StyledSearchFieldsGrid,
+} from "./styles";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,24 +32,26 @@ interface PegaExtensionsSearchLayoutProps extends PConnProps {
   resultsPaneTitle?: string;
   searchButtonLabel?: string;
   resetButtonLabel?: string;
-  layoutDirection?: 'vertical' | 'horizontal';
+  layoutDirection?: "vertical" | "horizontal";
+  searchColumns?: "1" | "2" | "3";
   resultsPlaceholder?: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PegaExtensionsSearchLayout(
-  props: PropsWithChildren<PegaExtensionsSearchLayoutProps>
+  props: PropsWithChildren<PegaExtensionsSearchLayoutProps>,
 ) {
   const {
-    searchPaneTitle = 'Search Criteria',
-    resultsPaneTitle = 'Search Results',
-    searchButtonLabel = 'Search',
-    resetButtonLabel = 'Reset',
-    layoutDirection = 'vertical',
-    resultsPlaceholder = 'Enter search criteria and click Search.',
+    searchPaneTitle = "Search Criteria",
+    resultsPaneTitle = "Search Results",
+    searchButtonLabel = "Search",
+    resetButtonLabel = "Reset",
+    layoutDirection = "vertical",
+    searchColumns = "3",
+    resultsPlaceholder = "Enter search criteria and click Search.",
     getPConnect,
-    children
+    children,
   } = props;
 
   // Constellation passes each CONTENTPICKER slot as a child in config order:
@@ -74,21 +76,24 @@ export default function PegaExtensionsSearchLayout(
 
   const onMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (layoutDirection !== 'vertical') return;
+      if (layoutDirection !== "vertical") return;
       isDragging.current = true;
       e.preventDefault();
     },
-    [layoutDirection]
+    [layoutDirection],
   );
 
   useEffect(() => {
-    if (layoutDirection !== 'vertical') return undefined;
+    if (layoutDirection !== "vertical") return undefined;
 
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging.current || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const next = Math.round(
-        Math.min(70, Math.max(20, ((e.clientX - rect.left) / rect.width) * 100))
+        Math.min(
+          70,
+          Math.max(20, ((e.clientX - rect.left) / rect.width) * 100),
+        ),
       );
       setSplitPercent(next);
     };
@@ -97,26 +102,26 @@ export default function PegaExtensionsSearchLayout(
       isDragging.current = false;
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
     return () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
     };
   }, [layoutDirection]);
 
   const onHandleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      if (layoutDirection !== 'vertical') return;
-      if (e.key === 'ArrowLeft') {
-        setSplitPercent(prev => Math.max(20, prev - 2));
+      if (layoutDirection !== "vertical") return;
+      if (e.key === "ArrowLeft") {
+        setSplitPercent((prev) => Math.max(20, prev - 2));
         e.preventDefault();
-      } else if (e.key === 'ArrowRight') {
-        setSplitPercent(prev => Math.min(70, prev + 2));
+      } else if (e.key === "ArrowRight") {
+        setSplitPercent((prev) => Math.min(70, prev + 2));
         e.preventDefault();
       }
     },
-    [layoutDirection]
+    [layoutDirection],
   );
 
   // ── Search ────────────────────────────────────────────────────────────
@@ -125,7 +130,11 @@ export default function PegaExtensionsSearchLayout(
     setSearchTriggered(true);
     try {
       const context = getPConnect().getContextName();
-      PCore.getRefreshManager().triggerRefreshForType('CASE_UPDATE', '', context);
+      PCore.getRefreshManager().triggerRefreshForType(
+        "CASE_UPDATE",
+        "",
+        context,
+      );
     } catch {
       // no-op in Storybook
     }
@@ -142,7 +151,8 @@ export default function PegaExtensionsSearchLayout(
 
       // Walk template children → first child is searchFieldPane region
       // → walk its children to find each field and clear its value
-      const templateChildren: { getPConnect: () => any }[] = pConn.getChildren() ?? [];
+      const templateChildren: { getPConnect: () => any }[] =
+        pConn.getChildren() ?? [];
       const searchPaneChildren: { getPConnect: () => any }[] =
         templateChildren[0]?.getPConnect().getChildren() ?? [];
 
@@ -152,17 +162,23 @@ export default function PegaExtensionsSearchLayout(
           const stateProps = childPConn.getStateProps() as Record<string, any>;
 
           Object.keys(stateProps).forEach((propKey: string) => {
-            if (propKey === 'value') {
-              const propRef = childPConn.getConfigProps()?.reference
-                ?? childPConn.getConfigProps()?.fieldMetadata?.propPath
-                ?? null;
+            if (propKey === "value") {
+              const propRef =
+                childPConn.getConfigProps()?.reference ??
+                childPConn.getConfigProps()?.fieldMetadata?.propPath ??
+                null;
 
-              const rawRef = (childPConn.getRawMetadata?.() as any)?.config?.value;
+              const rawRef = (childPConn.getRawMetadata?.() as any)?.config
+                ?.value;
               const refToUse: string | null = propRef ?? rawRef ?? null;
 
-              if (refToUse && typeof refToUse === 'string' && refToUse.includes('.')) {
-                const cleanRef = refToUse.replace(/^@P[\s]+/u, '').trim();
-                actionsApi.updateFieldValue(cleanRef, '');
+              if (
+                refToUse &&
+                typeof refToUse === "string" &&
+                refToUse.includes(".")
+              ) {
+                const cleanRef = refToUse.replace(/^@P[\s]+/u, "").trim();
+                actionsApi.updateFieldValue(cleanRef, "");
               }
             }
           });
@@ -171,7 +187,11 @@ export default function PegaExtensionsSearchLayout(
         }
       });
 
-      PCore.getRefreshManager().triggerRefreshForType('PROP_CHANGE', pageRef, context);
+      PCore.getRefreshManager().triggerRefreshForType(
+        "PROP_CHANGE",
+        pageRef,
+        context,
+      );
     } catch {
       // no-op in Storybook
     }
@@ -181,29 +201,39 @@ export default function PegaExtensionsSearchLayout(
 
   // ── Collapse buttons ──────────────────────────────────────────────────
 
-  const searchCollapseAction = layoutDirection === 'horizontal' ? (
-    <StyledCaretButton
-      variant='simple'
-      aria-expanded={!searchCollapsed}
-      aria-controls='search-pane-content'
-      aria-label={searchCollapsed ? `Expand ${searchPaneTitle}` : `Collapse ${searchPaneTitle}`}
-      onClick={() => setSearchCollapsed(c => !c)}
-    >
-      {searchCollapsed ? '▼' : '▲'}
-    </StyledCaretButton>
-  ) : undefined;
+  const searchCollapseAction =
+    layoutDirection === "horizontal" ? (
+      <StyledCaretButton
+        variant="simple"
+        aria-expanded={!searchCollapsed}
+        aria-controls="search-pane-content"
+        aria-label={
+          searchCollapsed
+            ? `Expand ${searchPaneTitle}`
+            : `Collapse ${searchPaneTitle}`
+        }
+        onClick={() => setSearchCollapsed((c) => !c)}
+      >
+        {searchCollapsed ? "▼" : "▲"}
+      </StyledCaretButton>
+    ) : undefined;
 
-  const resultsCollapseAction = layoutDirection === 'horizontal' ? (
-    <StyledCaretButton
-      variant='simple'
-      aria-expanded={!resultsCollapsed}
-      aria-controls='results-pane-content'
-      aria-label={resultsCollapsed ? `Expand ${resultsPaneTitle}` : `Collapse ${resultsPaneTitle}`}
-      onClick={() => setResultsCollapsed(c => !c)}
-    >
-      {resultsCollapsed ? '▼' : '▲'}
-    </StyledCaretButton>
-  ) : undefined;
+  const resultsCollapseAction =
+    layoutDirection === "horizontal" ? (
+      <StyledCaretButton
+        variant="simple"
+        aria-expanded={!resultsCollapsed}
+        aria-controls="results-pane-content"
+        aria-label={
+          resultsCollapsed
+            ? `Expand ${resultsPaneTitle}`
+            : `Collapse ${resultsPaneTitle}`
+        }
+        onClick={() => setResultsCollapsed((c) => !c)}
+      >
+        {resultsCollapsed ? "▼" : "▲"}
+      </StyledCaretButton>
+    ) : undefined;
 
   // ── Render ────────────────────────────────────────────────────────────
 
@@ -217,19 +247,19 @@ export default function PegaExtensionsSearchLayout(
         {/* Search Field Pane */}
         <Card
           style={{
-            width: layoutDirection === 'vertical' ? `${splitPercent}%` : '100%',
-            minWidth: layoutDirection === 'vertical' ? '200px' : undefined,
-            flexShrink: layoutDirection === 'vertical' ? 0 : undefined,
-            overflow: searchCollapsed ? 'hidden' : undefined,
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column'
+            width: layoutDirection === "vertical" ? `${splitPercent}%` : "100%",
+            minWidth: layoutDirection === "vertical" ? "200px" : undefined,
+            flexShrink: layoutDirection === "vertical" ? 0 : undefined,
+            overflow: searchCollapsed ? "hidden" : undefined,
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <CardHeader actions={searchCollapseAction}>
             <h2
-              id='search-pane-heading'
-              style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600 }}
+              id="search-pane-heading"
+              style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 600 }}
             >
               {searchPaneTitle}
             </h2>
@@ -237,26 +267,28 @@ export default function PegaExtensionsSearchLayout(
 
           {!searchCollapsed && (
             <CardContent
-              id='search-pane-content'
-              role='region'
-              aria-labelledby='search-pane-heading'
-              style={{ flex: '1 1 auto' }}
+              id="search-pane-content"
+              role="region"
+              aria-labelledby="search-pane-heading"
+              style={{ flex: "1 1 auto" }}
             >
-              <StyledSearchFieldsGrid>{searchFieldPaneChild}</StyledSearchFieldsGrid>
+              <StyledSearchFieldsGrid $columns={Number(searchColumns)}>
+                {searchFieldPaneChild}
+              </StyledSearchFieldsGrid>
             </CardContent>
           )}
 
           {!searchCollapsed && (
-            <CardFooter justify='end'>
+            <CardFooter justify="end">
               <Button
-                variant='secondary'
+                variant="secondary"
                 onClick={handleReset}
                 aria-label={resetButtonLabel}
               >
                 {resetButtonLabel}
               </Button>
               <Button
-                variant='primary'
+                variant="primary"
                 onClick={handleSearch}
                 aria-label={searchButtonLabel}
               >
@@ -267,11 +299,11 @@ export default function PegaExtensionsSearchLayout(
         </Card>
 
         {/* Resize handle — vertical only */}
-        {layoutDirection === 'vertical' && (
+        {layoutDirection === "vertical" && (
           <StyledResizeHandle
-            role='separator'
-            aria-orientation='vertical'
-            aria-label='Drag to resize panes. Use arrow keys for keyboard control.'
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Drag to resize panes. Use arrow keys for keyboard control."
             aria-valuenow={splitPercent}
             aria-valuemin={20}
             aria-valuemax={70}
@@ -284,19 +316,22 @@ export default function PegaExtensionsSearchLayout(
         {/* Results Pane */}
         <Card
           style={{
-            flex: layoutDirection === 'vertical' ? '1 1 auto' : undefined,
-            width: layoutDirection === 'vertical' ? `${100 - splitPercent}%` : '100%',
+            flex: layoutDirection === "vertical" ? "1 1 auto" : undefined,
+            width:
+              layoutDirection === "vertical"
+                ? `${100 - splitPercent}%`
+                : "100%",
             minWidth: 0,
-            overflow: resultsCollapsed ? 'hidden' : undefined,
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column'
+            overflow: resultsCollapsed ? "hidden" : undefined,
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <CardHeader actions={resultsCollapseAction}>
             <h2
-              id='results-pane-heading'
-              style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600 }}
+              id="results-pane-heading"
+              style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 600 }}
             >
               {resultsPaneTitle}
             </h2>
@@ -304,11 +339,11 @@ export default function PegaExtensionsSearchLayout(
 
           {!resultsCollapsed && searchTriggered && (
             <CardContent
-              id='results-pane-content'
-              role='region'
-              aria-labelledby='results-pane-heading'
-              aria-live='polite'
-              aria-atomic='false'
+              id="results-pane-content"
+              role="region"
+              aria-labelledby="results-pane-heading"
+              aria-live="polite"
+              aria-atomic="false"
             >
               {resultsPaneChild}
             </CardContent>
@@ -317,13 +352,13 @@ export default function PegaExtensionsSearchLayout(
           {!resultsCollapsed && !searchTriggered && (
             <CardContent
               style={{
-                flex: '1 1 auto',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                flex: "1 1 auto",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <span style={{ color: '#888', fontSize: '0.875rem' }}>
+              <span style={{ color: "#888", fontSize: "0.875rem" }}>
                 {resultsPlaceholder}
               </span>
             </CardContent>
