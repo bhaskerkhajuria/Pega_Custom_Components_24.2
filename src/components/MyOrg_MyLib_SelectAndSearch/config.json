@@ -3,7 +3,7 @@
   "label": "Select And Search",
   "description": "Two-pane search layout with configurable search criteria pane and results pane. Supports resizable vertical split and collapsible horizontal stacking.",
   "organization": "MyOrg",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "library": "MyLib",
   "allowedApplications": [],
   "componentKey": "MyOrg_MyLib_SelectAndSearch",
@@ -70,7 +70,7 @@
       "addTypeList": [
         "Fields",
         "Views",
-        "Widgets"
+        "UIComponents"
       ]
     },
     {
