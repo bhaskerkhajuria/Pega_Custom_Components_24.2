@@ -1,3 +1,5 @@
+// Pega Infinity 24.2 — Pega_Extensions_SearchLayout
+
 import {
   useRef,
   useState,
@@ -270,7 +272,6 @@ export default function PegaExtensionsSearchLayout(
               id="search-pane-content"
               role="region"
               aria-labelledby="search-pane-heading"
-              style={{ flex: "1 1 auto" }}
             >
               <StyledSearchFieldsGrid $columns={Number(searchColumns)}>
                 {searchFieldPaneChild}
